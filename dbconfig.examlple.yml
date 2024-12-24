@@ -1,0 +1,4 @@
+development:
+  dialect: mysql
+  datasource: account.db
+  dir: db/migrations
