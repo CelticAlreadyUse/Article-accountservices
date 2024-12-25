@@ -57,7 +57,7 @@ type Account struct{
 
 type Register struct {
 	Username string `json:"username"`
-	Email    string `json:"email"`
+	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password"`
 }
 type CustomClaims struct {
@@ -66,6 +66,6 @@ type CustomClaims struct {
 }
 type Login struct {
 	ID       int64  `json:"id"`
-	Email    string `json:"email"`
+	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password"`
 }
