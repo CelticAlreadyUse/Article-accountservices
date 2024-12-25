@@ -70,10 +70,41 @@ func (r *accountRepository) FindByEmail(ctx context.Context, email string) *mode
 	return &data
 }
 func (r *accountRepository) FindByID(ctx context.Context, id int64) (*model.Account, error) {
-	panic("")
+	logg := logrus.WithFields(logrus.Fields{
+		"data": id,
+	})
+	row := sq.Select("fullname", "sort_bio", "gender", "picture_url").From("accounts").RunWith(r.db).QueryRowContext(ctx)
+	var data model.Account
+	err := row.Scan(
+		&data.Fullname,
+		&data.SortBio,
+		&data.Gender,
+		&data.PictureUrl)
+	if err != nil {
+		logg.Error(err.Error())
+		return nil, err
+	}
+	return &data, nil
 }
-func (r *accountRepository) Update(ctx context.Context, account model.Account, id int64) (*model.Account, error) {
-	panic("")
+func (r *accountRepository) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
+	timeNow := time.Now().UTC()
+	_, err := sq.Update("accounts").
+		Set("fullname", data.Fullname).
+		Set("sort_bio", data.SortBio).
+		Set("gender", data.Gender).
+		Set("picture_url", data.PictureUrl).
+		Set("updated_at",timeNow).
+		Where(sq.Eq{"id": id}).
+		RunWith(r.db).
+		ExecContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	updatedAccount, err := r.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return updatedAccount, nil
 }
 func (r *accountRepository) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
 	panic("")

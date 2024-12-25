@@ -49,7 +49,7 @@ type Account struct{
 	Username   string    `json:"-"`
 	Email      string    `json:"-"`
 	Password   string    `json:"-"`
-	Role       Role      `json:"role"`
+	Role       Role      `json:"role,omitempty"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	DeletedAt  time.Time `json:"deleted_at"`
