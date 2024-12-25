@@ -69,6 +69,17 @@ func (u *accountUsecase) Login(ctx context.Context, data model.Login) (string, e
 	}
 	return token, nil
 }
-func (*accountUsecase) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
-	panic("implement me")
+func (u *accountUsecase) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"email": data.Email,
+		"id":    id,
+	})
+	account,err := u.accountRepository.Update(ctx,data,id)
+	if err !=nil{
+		logger.Error("failed to update account",err)
+		return nil,err
+	}
+
+	logger.Info("Account update sucessfully")
+	return account,nil
 }

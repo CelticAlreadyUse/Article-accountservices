@@ -23,7 +23,7 @@ func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g.GET("/account/:id", handler.show, MiddleWare)
 	g.POST("/register", handler.register)
 	g.POST("/login",handler.login)
-	g.POST("/update/:id",handler.update)
+	g.POST("/update/:id",handler.update,MiddleWare)
 
 }
 
@@ -88,5 +88,21 @@ func (handler *AccountHandler) register(e echo.Context) error {
 }
 
 func (handler *AccountHandler)update(e echo.Context)error{
-	panic("implement me")
+	id := e.Param("id")
+	idInt,err := strconv.Atoi(id)
+	if err !=nil{
+		return echo.NewHTTPError(http.StatusInternalServerError,err.Error())
+	}
+	var data *model.Account
+	err =e.Bind(&data)
+	if err !=nil{
+		return echo.NewHTTPError(http.StatusBadRequest,err.Error())
+	}
+	 account,err :=handler.accountUsecase.Update(e.Request().Context(),*data,int64(idInt))
+	 if err !=nil{
+		return echo.NewHTTPError(http.StatusInternalServerError,err.Error())
+	 }
+	 return e.JSON(http.StatusAccepted,Response{
+		Data: account,
+	 })
 }
