@@ -1,0 +1,13 @@
+//register
+{
+  "username":"skibididbidi",
+  "email":"intaniadivanagirsang@gmail.com",
+  "password":"#intan123"
+}
+
+//Login
+    {
+        "email":"intaniadivanagirsang@gmail.com",
+        "password":"#intan123"
+    }
+//

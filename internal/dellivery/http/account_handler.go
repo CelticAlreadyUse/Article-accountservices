@@ -9,11 +9,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
-
 type AccountHandler struct {
 	accountUsecase model.AccountUsecase
 }
-
 func InitAccountHandler(usecase model.AccountUsecase) *AccountHandler {
 	return &AccountHandler{accountUsecase: usecase}
 }
@@ -24,9 +22,8 @@ func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g.POST("/register", handler.register)
 	g.POST("/login",handler.login)
 	g.POST("/update/:id",handler.update,MiddleWare)
-
+	g.GET("/search",handler.findUsername,MiddleWare)
 }
-
 func (handler *AccountHandler) login(e echo.Context) error {
 	var body  *model.Login
 	err := e.Bind(&body)
@@ -54,7 +51,6 @@ func (handler *AccountHandler) show(e echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id format")
 	}
 	claim, ok := e.Request().Context().Value(model.BearerAuthKey).(model.CustomClaims)
-
 	if !ok {
 		return echo.NewHTTPError(http.StatusUnauthorized)
 	}
@@ -86,7 +82,6 @@ func (handler *AccountHandler) register(e echo.Context) error {
 	}
 	return e.JSON(http.StatusAccepted, response)
 }
-
 func (handler *AccountHandler)update(e echo.Context)error{
 	id := e.Param("id")
 	idInt,err := strconv.Atoi(id)
@@ -105,4 +100,25 @@ func (handler *AccountHandler)update(e echo.Context)error{
 	 return e.JSON(http.StatusAccepted,Response{
 		Data: account,
 	 })
+}
+func (handler *AccountHandler)findUsername(c echo.Context) error{
+	var param model.SearchParam
+	if limitParam := c.QueryParam("limit") ;limitParam!= " "{
+		intLimit,err := strconv.Atoi(limitParam)
+		if err !=nil || intLimit <=0{	
+			return echo.NewHTTPError(http.StatusBadRequest,"invalid limit value")
+		}
+		param.Limit = int64(intLimit)
+	}
+
+	if searchParam := c.QueryParam("username");searchParam != " "{
+		param.Username = searchParam
+	}
+	account := handler.accountUsecase.Search(c.Request().Context(),param)
+	if account == nil{
+		return echo.NewHTTPError(http.StatusNotFound,"User not found")
+	}
+	return c.JSON(http.StatusOK,Response{
+		Data: account,
+	})
 }

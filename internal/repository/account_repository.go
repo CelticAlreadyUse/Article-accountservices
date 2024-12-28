@@ -109,3 +109,41 @@ func (r *accountRepository) Update(ctx context.Context, data model.Account, id i
 func (r *accountRepository) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
 	panic("")
 }
+func (r *accountRepository) FindByUserName(ctx context.Context, search model.SearchParam) ([]*model.SearchModelResponse, error) {
+	query := `SELECT id, username, picture_url, sort_bio, created_at 
+	          FROM accounts 
+	          WHERE username LIKE ? 
+	          LIMIT ?`
+	rows, err := r.db.QueryContext(ctx, query, "%"+search.Username+"%", search.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var accounts []*model.SearchModelResponse
+	for rows.Next() {
+		var (
+
+			 id int64
+			 pictureUrl,sortBio sql.NullString
+			 username string
+			 createdAt time.Time
+		)
+		if err := rows.Scan(&id, &username, &pictureUrl, &sortBio, &createdAt); err != nil {
+			return nil, err
+		}
+	searchAccounnts := model.SearchModelResponse{
+		ID: id,
+		Username: username,
+		PictureUrl: pictureUrl.String,
+		SortBio: sortBio.String,
+		CreatedAt: createdAt,
+	}
+	accounts = append(accounts, &searchAccounnts)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	logrus.Infof("Searched Username: %s", search.Username)
+	return accounts, nil
+}
+
