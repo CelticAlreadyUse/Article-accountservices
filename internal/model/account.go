@@ -9,12 +9,14 @@ import (
 type ContextAuthKey string
 
 const BearerAuthKey ContextAuthKey = "BearerAuth"
+
 type AccountRepository interface{
 	Store(ctx context.Context, data Account) (*Account, error)
 	FindByEmail(ctx context.Context, email string) *Login
 	FindByID(ctx context.Context, id int64) (*Account, error)
 	Update(ctx context.Context, account Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
+	FindByUserName(ctx context.Context,search SearchParam)([]*SearchModelResponse,error)
 }
 
 type AccountUsecase interface{
@@ -23,8 +25,7 @@ type AccountUsecase interface{
 	FindByID(ctx context.Context,data Account ,id int64) (*Account, error)
 	Update(ctx context.Context, data Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
-
-
+	Search(ctx context.Context,search SearchParam)[]*SearchModelResponse
 }
 
 type Gender string
@@ -40,6 +41,17 @@ const (
 	USER Role = "member"
 	ADMIN Role = "admin"
 )
+type SearchParam struct{
+	Limit int64
+	Username string
+}
+type SearchModelResponse struct{
+	ID         int64     `json:"id"`
+	Username   string    `json:"username"`
+	PictureUrl string    `json:"picture_url"`
+	SortBio    string    `json:"sort_bio"`
+	CreatedAt  time.Time `json:"created_at"`	
+}
 type Account struct{
 	ID         int64     `json:"id"`
 	Fullname   string    `json:"fullname"`

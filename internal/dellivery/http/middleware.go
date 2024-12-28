@@ -16,16 +16,16 @@ import (
 func MiddleWare(next echo.HandlerFunc) echo.HandlerFunc{
 	return func (c echo.Context) error {
 		authHandler := c.Request().Header.Get(echo.HeaderAuthorization)
-		splitAuth := strings.Split(authHandler,"")
+		splitAuth := strings.Split(authHandler," ")
 		if len(splitAuth) !=2 || splitAuth[0] != "Bearer" {
 			return echo.NewHTTPError(http.StatusUnauthorized,"invalid token")
 		}
 
-		accesToken := splitAuth[1]
-		log.Println(accesToken)
+		accessToken := splitAuth[1]
+		log.Println(accessToken)
 
 		var claim model.CustomClaims
-		err := helper.DecodeToken(accesToken,&claim)
+		err := helper.DecodeToken(accessToken,&claim)
 		if err !=nil{
 			log.Println(claim)
 			return echo.NewHTTPError(http.StatusUnauthorized,"invalid token")		

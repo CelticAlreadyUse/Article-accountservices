@@ -43,11 +43,25 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 
 	return accesToken, nil
 }
-func (*accountUsecase) FindByID(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
-	panic("implement me")
+func (u *accountUsecase) FindByID(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
+	logrus.WithFields(logrus.Fields{
+		"id":id,
+		"data":data,	
+	})
+	
+	account,err := u.accountRepository.FindByID(ctx,id) 
+	if err !=nil{
+		return nil,err
+	}
+	if account == nil{
+		return nil,errors.New("id not found")
+	}
+
+	return account,err
 }
+
 func (*accountUsecase) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
-	panic("implement me")
+	return nil,errors.New("err")
 }
 func (u *accountUsecase) Login(ctx context.Context, data model.Login) (string, error) {
 	logger := logrus.WithFields(logrus.Fields{
@@ -82,4 +96,14 @@ func (u *accountUsecase) Update(ctx context.Context, data model.Account, id int6
 
 	logger.Info("Account update sucessfully")
 	return account,nil
+}
+func (u *accountUsecase)Search(ctx context.Context,search model.SearchParam) []*model.SearchModelResponse{
+	logrus.WithFields(logrus.Fields{
+		"data":search.Username,
+	})
+	account,err := u.accountRepository.FindByUserName(ctx,search)
+	if err !=nil{
+		return nil
+	}
+	return account
 }

@@ -1,5 +1,5 @@
 env: development
-port: 7777
+port: 6666
 mysql:
   dbhost: localhost
   dbuser: root
