@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/CelticAlreadyUse/Article-accountservices/internal/config"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/helper"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/sirupsen/logrus"
@@ -67,7 +69,6 @@ func (u *accountUsecase) Login(ctx context.Context, data model.Login) (string, e
 	logger := logrus.WithFields(logrus.Fields{
 		"data": data,
 	})
-
 	user := u.accountRepository.FindByEmail(ctx, data.Email)
 	if user == nil {
 		err := errors.New("email not found")
@@ -81,6 +82,10 @@ func (u *accountUsecase) Login(ctx context.Context, data model.Login) (string, e
 	if err != nil {
 		logger.Error(err)
 	}
+	claims,_ :=helper.ValidateToken(token,model.ConfigJWT{SigningKey:config.JWTSigningKey(),ExpTime: config.JWTExp().String() })
+	logger.Infof("Token akan expired pada: %v\n", claims.ExpiresAt.Time)
+	logger.Infof("Waktu sekarang: %v\n", time.Now())
+	logger.Infof("Sisa waktu: %v\n", claims.ExpiresAt.Time.Sub(time.Now()))
 	return token, nil
 }
 func (u *accountUsecase) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {

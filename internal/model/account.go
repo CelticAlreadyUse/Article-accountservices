@@ -76,6 +76,10 @@ type CustomClaims struct {
 	UserID int64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
+type ConfigJWT struct {
+    SigningKey string
+    ExpTime    string
+}
 type Login struct {
 	ID       int64  `json:"id"`
 	Email    string `json:"email" validate:"required,email"`
