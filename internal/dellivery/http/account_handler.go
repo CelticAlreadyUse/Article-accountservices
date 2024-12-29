@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -18,11 +17,11 @@ func InitAccountHandler(usecase model.AccountUsecase) *AccountHandler {
 var validate = validator.New()
 func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g := e.Group("/v1/auth")
-	g.GET("/account/:id", handler.show, MiddleWare)
+	g.GET("/account/:id", handler.show, AuthMiddleWare)
 	g.POST("/register", handler.register)
 	g.POST("/login",handler.login)
-	g.POST("/update/:id",handler.update,MiddleWare)
-	g.GET("/search",handler.findUsername,MiddleWare)
+	g.POST("/update/:id",handler.update,AuthMiddleWare)
+	g.GET("/search",handler.findUsername,AuthMiddleWare)
 }
 func (handler *AccountHandler) login(e echo.Context) error {
 	var body  *model.Login
@@ -38,6 +37,7 @@ func (handler *AccountHandler) login(e echo.Context) error {
 	if err !=nil{
 		return echo.NewHTTPError(http.StatusUnauthorized,err.Error())
 	}
+
 	response := Response{
 		AccesToken: token,
 	}
