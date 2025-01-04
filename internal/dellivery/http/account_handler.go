@@ -1,5 +1,4 @@
 package httphandler
-
 import (
 	"log"
 	"net/http"
@@ -22,6 +21,7 @@ func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g.POST("/login",handler.login)
 	g.POST("/update/:id",handler.update,AuthMiddleWare)
 	g.GET("/search",handler.findUsername,AuthMiddleWare)
+	g.POST("/verify_email",handler.verifyEmail)
 }
 func (handler *AccountHandler) login(e echo.Context) error {
 	var body  *model.Login
@@ -120,5 +120,24 @@ func (handler *AccountHandler)findUsername(c echo.Context) error{
 	}
 	return c.JSON(http.StatusOK,Response{
 		Data: account,
+	})
+}
+func (handler *AccountHandler)verifyEmail(e echo.Context) error{
+	var email *model.VerifyEmailRequest
+	err := e.Bind(&email)
+	if err !=nil{
+		return echo.NewHTTPError(http.StatusInternalServerError,err)
+	}
+	var id = e.Param("id")
+	IdInt,err := strconv.Atoi(id)
+	if err !=nil{
+		return  echo.NewHTTPError(http.StatusInternalServerError,err)
+	}
+	tokenEmail,err := handler.accountUsecase.CreateAndSendVerification(e.Request().Context(),int64(IdInt),email)
+	if err !=nil{
+		return echo.NewHTTPError(http.StatusInternalServerError,err)
+	}
+	return e.JSON(http.StatusAccepted,Response{
+			AccesToken: tokenEmail,
 	})
 }

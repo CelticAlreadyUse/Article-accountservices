@@ -1,8 +1,10 @@
 package helper
 
 import (
+	"crypto/rand"
 	"fmt"
 	"time"
+
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/config"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/golang-jwt/jwt/v5"
@@ -62,4 +64,11 @@ func IsTokenExpired(expTime *jwt.NumericDate) bool {
         return true
     }
     return time.Now().After(expTime.Time)
+}
+func GenerateEmailToken()(string, error) {
+		bytes := make([]byte, 32)
+		if _, err := rand.Read(bytes); err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%x", bytes), nil
 }
