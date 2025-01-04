@@ -73,7 +73,7 @@ func (r *accountRepository) FindByID(ctx context.Context, id int64) (*model.Acco
 	logg := logrus.WithFields(logrus.Fields{
 		"data": id,
 	})
-	row := sq.Select("fullname", "sort_bio", "gender", "picture_url").From("accounts").RunWith(r.db).QueryRowContext(ctx)
+	row := sq.Select("fullname", "sort_bio", "gender", "picture_url").From("accounts").Where(sq.Eq{"id":id}).RunWith(r.db).QueryRowContext(ctx)
 	var data model.Account
 	err := row.Scan(
 		&data.Fullname,
@@ -107,7 +107,7 @@ func (r *accountRepository) Update(ctx context.Context, data model.Account, id i
 	return updatedAccount, nil
 }
 func (r *accountRepository) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
-	panic("")
+	panic("IMplement")
 }
 func (r *accountRepository) FindByUserName(ctx context.Context, search model.SearchParam) ([]*model.SearchModelResponse, error) {
 	query := `SELECT id, username, picture_url, sort_bio, created_at 
@@ -146,4 +146,20 @@ func (r *accountRepository) FindByUserName(ctx context.Context, search model.Sea
 	logrus.Infof("Searched Username: %s", search.Username)
 	return accounts, nil
 }
-
+func (r *accountRepository)StoreToken(ctx context.Context,tokenData *model.VerifyEmail)error{
+	_,err := sq.Insert("email_verification").Columns("user_id","token","expires_at","created_at").
+	Values(tokenData.UserID,tokenData.Token,tokenData,tokenData.ExpiresAt,tokenData.CreatedAt).RunWith(r.db).ExecContext(ctx)
+	if err !=nil{
+		return err
+	}
+	return nil
+}
+func (r *accountRepository)DeleteToken(ctx context.Context, id int64) error{
+	panic("implement Me")
+}
+func (r *accountRepository)GetToken(ctx context.Context,token string)error{
+	// sql := sq.Select("user_id","token","expires_at","created_at").From("email_verification").
+	// Where(sq.Eq{"token":token}).RunWith(r.db).QueryRowContext(ctx)
+	// rows := sql.Scan()
+	panic("implement me")
+}

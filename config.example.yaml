@@ -8,7 +8,7 @@ mysql:
   dbname: account
 jwt:
   signing_key: your_secret_key
-  exp: 1440     #24 * a minutes
+  exp: 1440     # * a minutes
 redis:
   host: localhost:6379
   pass:

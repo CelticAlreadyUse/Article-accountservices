@@ -17,6 +17,9 @@ type AccountRepository interface{
 	Update(ctx context.Context, account Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
 	FindByUserName(ctx context.Context,search SearchParam)([]*SearchModelResponse,error)
+	GetToken(ctx context.Context,token string)error
+	StoreToken(ctx context.Context,tokenEmail *VerifyEmail)error
+	DeleteToken(ctx context.Context, id int64) error
 }
 
 type AccountUsecase interface{
@@ -26,6 +29,8 @@ type AccountUsecase interface{
 	Update(ctx context.Context, data Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
 	Search(ctx context.Context,search SearchParam)[]*SearchModelResponse
+	CreateAndSendVerification(ctx context.Context, userID int64, email *VerifyEmailRequest) (string,error)
+	ValidateToken(ctx context.Context, token string) (string,error)
 }
 
 type Gender string
@@ -45,6 +50,7 @@ type SearchParam struct{
 	Limit int64
 	Username string
 }
+
 type SearchModelResponse struct{
 	ID         int64     `json:"id"`
 	Username   string    `json:"username"`
@@ -84,4 +90,15 @@ type Login struct {
 	ID       int64  `json:"id"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password"`
+}
+type VerifyEmail struct{
+	ID int64 `json:"-"`
+	UserID int64 `json:"-"`
+	Token string `json:"email_token"`
+	ExpiresAt time.Time `json:"-"`
+	CreatedAt time.Time  `json:"-"`
+}
+
+type VerifyEmailRequest struct{
+	Email string `json:"email",validate:"required,email`
 }
