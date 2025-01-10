@@ -47,3 +47,30 @@ func JWTSigningKey() string {
 func JWTExp() time.Duration {
 	return viper.GetDuration("jwt.exp")
 }
+func EMAIExp()time.Time{
+	return viper.GetTime("email_verification.expTime")
+}
+func SMTPHost()string{
+	return viper.GetString("smtp.host")
+}
+func SMTPPort()string{
+	return viper.GetString("smtp.port")
+}
+func SMTPName()string{
+	return viper.GetString("smtp.name")
+}
+func SMTPEmail()string{
+	return viper.GetString("smtp.email")
+}
+func SMTPPasswrod()string{
+	return viper.GetString("smtp.password")
+}
+func RedisHost()string{
+	return viper.GetString("redis.host")
+}
+func RedisPass()string{
+	return viper.GetString("redis.pass")
+}
+func RedisDB()string{
+	return viper.GetString("redis.db")
+}
