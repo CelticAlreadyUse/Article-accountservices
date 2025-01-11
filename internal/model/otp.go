@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 )
-
 type OTPRepository interface {
 	StoreOTP(email string, otp string, ttl time.Duration) error
 	ValidateOTP( data OTPRequestValidate) (bool, error)

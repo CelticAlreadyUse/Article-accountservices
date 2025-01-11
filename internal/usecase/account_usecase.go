@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
+
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/config"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/helper"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
@@ -27,9 +28,9 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 		logger.Error(err)
 		return "", err
 	}
-	Email := u.accountRepository.FindByEmail(ctx,data.Email)
-	if Email != nil{
-		return "",errors.New("account was already exist")
+	Email := u.accountRepository.FindByEmail(ctx, data.Email)
+	if Email != nil {
+		return "", errors.New("account was already exist")
 	}
 	newAccount, err := u.accountRepository.Store(ctx, model.Account{
 		Username: data.Username,
@@ -113,4 +114,14 @@ func (u *accountUsecase) Search(ctx context.Context, search model.SearchParam) [
 		return nil
 	}
 	return account
+}
+func (u *accountUsecase) SetVerify(ctx context.Context, email string) error {
+	logrus.WithFields(logrus.Fields{
+		"Data": email,
+	})
+	err := u.accountRepository.SetVerify(ctx, email)
+	if err != nil {
+		return err
+	}
+	return nil
 }

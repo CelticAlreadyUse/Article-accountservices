@@ -19,6 +19,7 @@ type AccountRepository interface {
 	Update(ctx context.Context, account Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
 	FindByUserName(ctx context.Context, search SearchParam) ([]*SearchModelResponse, error)
+	SetVerify(ctx context.Context, email string) error
 }
 type AccountUsecase interface {
 	Create(ctx context.Context, data Register) (token string, err error)
@@ -27,12 +28,11 @@ type AccountUsecase interface {
 	Update(ctx context.Context, data Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
 	Search(ctx context.Context, search SearchParam) []*SearchModelResponse
-
+	SetVerify(ctx context.Context, email string) error
 }
 
 type Gender string
 type Role string
-
 
 const (
 	MALE   Gender = "male"

@@ -88,8 +88,8 @@ func SendEmail(to, subject, body string)error{
 	mail.SetBody("text/plain", body)
 
 	// Konfigurasi SMTP
-	port, _ := strconv.Atoi("587") // Ganti dengan port SMTP Anda
-	dialer := gomail.NewDialer("smtp.gmail.com", port, "youremail@example.com", "yourpassword")
+	port, _ := strconv.Atoi(config.SMTPPort()) 
+	dialer := gomail.NewDialer(config.SMTPHost(), port, config.SMTPEmail(), config.SMTPPasswrod())
 
 	// Kirim email
 	if err := dialer.DialAndSend(mail); err != nil {

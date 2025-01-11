@@ -15,8 +15,8 @@ type AccountHandler struct {
 	otpUsecase     model.OTPUsecase
 }
 
-func InitAccountHandler(usecase model.AccountUsecase) *AccountHandler {
-	return &AccountHandler{accountUsecase: usecase}
+func InitAccountHandler(accountUsecase model.AccountUsecase, otpUsecase model.OTPUsecase) *AccountHandler {
+	return &AccountHandler{accountUsecase: accountUsecase, otpUsecase: otpUsecase}
 }
 
 var validate = validator.New()
@@ -29,6 +29,7 @@ func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g.POST("/update/:id", handler.update, AuthMiddleWare)
 	g.GET("/search", handler.findUsername, AuthMiddleWare)
 	g.GET("/otp/request", handler.requestOTP, AuthMiddleWare)
+	g.POST("/otp/validate", handler.validateOTP, AuthMiddleWare)
 }
 func (handler *AccountHandler) login(e echo.Context) error {
 	var body *model.Login
@@ -135,23 +136,23 @@ func (handler *AccountHandler) requestOTP(e echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	err = e.Validate(body)
+	err = validate.Struct(body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	err = handler.otpUsecase.GenerateAndSendOTP(body)
 	if err != nil {
-		return e.JSON(http.StatusInternalServerError, "Looks like there have some error")
+		return e.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return e.JSON(http.StatusOK, "Sucessfully sent OTP")
 }
-func (handler *AccountHandler) ValidateOTP(e echo.Context) error {
+func (handler *AccountHandler) validateOTP(e echo.Context) error {
 	var body model.OTPRequestValidate
 	err := e.Bind(&body)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, "Invalid request body")
 	}
-	err = e.Validate(body)
+	err = validate.Struct(body)
 	if err != nil {
 		return e.JSON(http.StatusBadRequest, err)
 	}
@@ -159,9 +160,12 @@ func (handler *AccountHandler) ValidateOTP(e echo.Context) error {
 	if !ok {
 		return e.JSON(http.StatusUnauthorized, "Invalid OTP")
 	}
-	if err !=nil{
+	if err != nil {
 		return e.JSON(http.StatusInternalServerError, "Looks like there have some error")
 	}
-
+	err = handler.accountUsecase.SetVerify(e.Request().Context(), body.Email)
+	if err != nil {
+		return e.JSON(http.StatusInternalServerError, "Verify email failed")
+	}
 	return e.JSON(http.StatusAccepted, "Sucess your email has been verified")
 }

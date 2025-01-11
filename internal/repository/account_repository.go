@@ -145,3 +145,11 @@ func (r *accountRepository) FindByUserName(ctx context.Context, search model.Sea
 	logrus.Infof("Searched Username: %s", search.Username)
 	return accounts, nil
 }
+
+func(r *accountRepository)SetVerify(ctx context.Context,email string)error{
+	_,err := sq.Update("accounts").Set("verify",true).Where(sq.Eq{"email":email}).RunWith(r.db).ExecContext(ctx)
+	if err !=nil{
+		return err
+	}
+	return nil
+}
