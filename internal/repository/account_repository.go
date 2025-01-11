@@ -19,13 +19,12 @@ type accountRepository struct {
 func InitAccountRepository(db *sql.DB) model.AccountRepository {
 	return &accountRepository{db: db}
 }
-
 var ErrDuplicateEntry = errors.New("username or email already exist")
 
 func (r *accountRepository) Store(ctx context.Context, data model.Account) (*model.Account, error) {
 	now := time.Now().UTC()
-	result, err := sq.Insert("accounts").Columns("username", "email", "password", "created_at", "updated_at").
-		Values(data.Username, data.Email, data.Password, now, now).RunWith(r.db).ExecContext(ctx)
+	result, err := sq.Insert("accounts").Columns("username", "email","verify","password", "created_at", "updated_at").
+		Values(data.Username, data.Email,false ,data.Password, now, now).RunWith(r.db).ExecContext(ctx)
 	if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
 		return nil, ErrDuplicateEntry
 	}
@@ -146,20 +145,11 @@ func (r *accountRepository) FindByUserName(ctx context.Context, search model.Sea
 	logrus.Infof("Searched Username: %s", search.Username)
 	return accounts, nil
 }
-func (r *accountRepository)StoreToken(ctx context.Context,tokenData *model.VerifyEmail)error{
-	_,err := sq.Insert("email_verification").Columns("user_id","token","expires_at","created_at").
-	Values(tokenData.UserID,tokenData.Token,tokenData,tokenData.ExpiresAt,tokenData.CreatedAt).RunWith(r.db).ExecContext(ctx)
+
+func(r *accountRepository)SetVerify(ctx context.Context,email string)error{
+	_,err := sq.Update("accounts").Set("verify",true).Where(sq.Eq{"email":email}).RunWith(r.db).ExecContext(ctx)
 	if err !=nil{
 		return err
 	}
 	return nil
-}
-func (r *accountRepository)DeleteToken(ctx context.Context, id int64) error{
-	panic("implement Me")
-}
-func (r *accountRepository)GetToken(ctx context.Context,token string)error{
-	// sql := sq.Select("user_id","token","expires_at","created_at").From("email_verification").
-	// Where(sq.Eq{"token":token}).RunWith(r.db).QueryRowContext(ctx)
-	// rows := sql.Scan()
-	panic("implement me")
 }

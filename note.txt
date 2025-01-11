@@ -11,3 +11,14 @@
         "password":"#intan123"
     }
 //
+
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3MzYxNTk4NzQsImlhdCI6MTczNjE1OTgxNH0.CBzcpXDW8zHr-G-18gtRuYAE2KVFyPa5oW-hTnVqecw
+
+
+
+ {
+ "username":"testAccountSendemailfeature",
+  "email":"kanisiuswahyusantoso21@gmail.com",
+  "password":"#Wahyu123"
+ }

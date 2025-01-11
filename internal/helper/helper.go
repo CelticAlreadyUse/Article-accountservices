@@ -1,14 +1,17 @@
 package helper
 
 import (
-	"crypto/rand"
+	"errors"
 	"fmt"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/config"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/gomail.v2"
 )
 
 func Hashpassword(password string) (string, error) {
@@ -65,10 +68,33 @@ func IsTokenExpired(expTime *jwt.NumericDate) bool {
     }
     return time.Now().After(expTime.Time)
 }
-func GenerateEmailToken()(string, error) {
-		bytes := make([]byte, 32)
-		if _, err := rand.Read(bytes); err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("%x", bytes), nil
+func GenerateOTP()string{
+	return fmt.Sprintf("%06d", rand.Intn(1000000)) // Random 6 digit OTP
+
+}
+func CheckDataSame(data,send string)error{
+	if data == send{
+		return nil
+	}else{
+		return errors.New("the data is not the same")
+	}
+}
+
+func SendEmail(to, subject, body string)error{
+	mail := gomail.NewMessage()
+	mail.SetHeader("From", "wahyusantosokanisius@gmial.com") // Ganti dengan email Anda
+	mail.SetHeader("To", to)
+	mail.SetHeader("Subject", subject)
+	mail.SetBody("text/plain", body)
+
+	// Konfigurasi SMTP
+	port, _ := strconv.Atoi(config.SMTPPort()) 
+	dialer := gomail.NewDialer(config.SMTPHost(), port, config.SMTPEmail(), config.SMTPPasswrod())
+
+	// Kirim email
+	if err := dialer.DialAndSend(mail); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
 }

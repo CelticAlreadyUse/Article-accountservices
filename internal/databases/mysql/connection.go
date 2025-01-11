@@ -24,14 +24,11 @@ func InitDBConn() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-
 	dbConn.SetConnMaxLifetime(time.Minute * 3)
 	dbConn.SetMaxOpenConns(10)
 	dbConn.SetMaxIdleConns(10)
-
 	if err := dbConn.Ping(); err != nil {
 		panic(err)
 	}
-
 	return dbConn
 }

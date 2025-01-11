@@ -28,6 +28,10 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 		logger.Error(err)
 		return "", err
 	}
+	Email := u.accountRepository.FindByEmail(ctx, data.Email)
+	if Email != nil {
+		return "", errors.New("account was already exist")
+	}
 	newAccount, err := u.accountRepository.Store(ctx, model.Account{
 		Username: data.Username,
 		Email:    data.Email,
@@ -42,7 +46,6 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 		logger.Error(err)
 		return "", err
 	}
-
 	return accesToken, nil
 }
 func (u *accountUsecase) FindByID(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
@@ -112,46 +115,13 @@ func (u *accountUsecase) Search(ctx context.Context, search model.SearchParam) [
 	}
 	return account
 }
-func (u *accountUsecase) CreateAndSendVerification(ctx context.Context, userID int64, email *model.VerifyEmailRequest) (string,error) {
+func (u *accountUsecase) SetVerify(ctx context.Context, email string) error {
 	logrus.WithFields(logrus.Fields{
-		"data": userID,
+		"Data": email,
 	})
-	token, err := helper.GenerateEmailToken()
+	err := u.accountRepository.SetVerify(ctx, email)
 	if err != nil {
-		return "",err
+		return err
 	}
-
-	//make expiresAt a custom
-	expiresAt := time.Now().Add(24 * time.Hour)
-	verification := &model.VerifyEmail{
-		UserID:userID,
-		Token:token,
-		ExpiresAt: expiresAt,
-		CreatedAt: time.Now(),
-	}
-
-	if err := u.accountRepository.StoreToken(ctx,verification);err!=nil{
-		return "",err
-	}
-	return "",nil
-
-}
-func (u *accountUsecase) ValidateToken(ctx context.Context, token string) (string,error) {
-	//  err := u.accountRepository.GetToken(ctx, token)
-	// if err != nil {
-	// 	return "",err
-	// }
-	// if time.Now().After(model.VerifyEmail.ExpiresAt) {
-	// 	return fmt.Errorf("token sudah kadaluarsa")
-	// }
-
-	// // Jika valid, hapus token setelah digunakan
-	// if err := u.repo.Delete(ctx, verification.ID); err != nil {
-	// 	return err
-	// }
-
-	// // Verifikasi berhasil
-	// fmt.Println("Verifikasi berhasil!")
-	// return nil
-	panic("Impelemnt me")
+	return nil
 }
