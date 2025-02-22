@@ -28,8 +28,11 @@ func (handler *AccountHandler) RegisterAccountHandler(e *echo.Echo) {
 	g.POST("/login", handler.login)
 	g.POST("/update/:id", handler.update, AuthMiddleWare)
 	g.GET("/search", handler.findUsername, AuthMiddleWare)
-	g.GET("/otp/request", handler.requestOTP, AuthMiddleWare)
-	g.POST("/otp/validate", handler.validateOTP, AuthMiddleWare)
+	g.GET("/otp/request", handler.requestOTP)
+	g.POST("/otp/validate", handler.validateOTP)
+	g.POST("/send-otp/password", handler.sendOTPPass)
+	g.POST("/verify-otp/password", handler.verifyOTPPass)
+	g.POST("/reset-password", handler.resetPassword, OTPMiddleWare)
 }
 func (handler *AccountHandler) login(e echo.Context) error {
 	var body *model.Login
@@ -129,43 +132,4 @@ func (handler *AccountHandler) findUsername(c echo.Context) error {
 	return c.JSON(http.StatusOK, Response{
 		Data: account,
 	})
-}
-func (handler *AccountHandler) requestOTP(e echo.Context) error {
-	var body model.OTPRequestGenerateAndSend
-	err := e.Bind(&body)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	err = validate.Struct(body)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	err = handler.otpUsecase.GenerateAndSendOTP(body)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, err.Error())
-	}
-	return e.JSON(http.StatusOK, "Sucessfully sent OTP")
-}
-func (handler *AccountHandler) validateOTP(e echo.Context) error {
-	var body model.OTPRequestValidate
-	err := e.Bind(&body)
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, "Invalid request body")
-	}
-	err = validate.Struct(body)
-	if err != nil {
-		return e.JSON(http.StatusBadRequest, err)
-	}
-	ok, err := handler.otpUsecase.ValidateOTP(&body)
-	if !ok {
-		return e.JSON(http.StatusUnauthorized, "Invalid OTP")
-	}
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, "Looks like there have some error")
-	}
-	err = handler.accountUsecase.SetVerify(e.Request().Context(), body.Email)
-	if err != nil {
-		return e.JSON(http.StatusInternalServerError, "Verify email failed")
-	}
-	return e.JSON(http.StatusAccepted, "Sucess your email has been verified")
 }
