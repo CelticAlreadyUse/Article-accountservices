@@ -4,7 +4,7 @@ mysql:
   dbhost: localhost
   dbuser: root
   dbport: 3306
-  dbpass: \#Wahyu123
+  dbpass: "#Wahyu123"
   dbname: account
 jwt:
   signing_key: your_secret_key
@@ -17,5 +17,5 @@ smtp:
   host: smtp.gmail.com
   port: 587
   name: PT. GoArticles <wahyusantosokanisius@gmail.com>
-  email: youremail@gmail.com
-  password: Your password
+  email: wahyusantosokanisius@gmail.com
+  password: pfdr fqfq rjbg yyux 

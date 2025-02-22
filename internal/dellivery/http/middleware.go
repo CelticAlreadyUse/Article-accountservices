@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/config"
+	redisClient "github.com/CelticAlreadyUse/Article-accountservices/internal/databases/redis"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/helper"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/golang-jwt/jwt/v5"
@@ -47,5 +48,22 @@ func AuthMiddleWare(next echo.HandlerFunc) echo.HandlerFunc {
 		req := c.Request().WithContext(ctx)
 		c.SetRequest(req)
 		return next(c)
+	}
+}
+func OTPMiddleWare(next echo.HandlerFunc)echo.HandlerFunc{
+	return func(c echo.Context) error {
+		resetToken := c.Request().Header.Get("Authorization")
+		if resetToken != "" {
+			echo.NewHTTPError(http.StatusUnauthorized,c.JSON(http.StatusUnauthorized,"Reset Token not found"))
+		}
+
+		email,err := redisClient.InitRedisClient().Get(context.Background(),"reset"+resetToken).Result()
+		if err !=nil{
+			return echo.NewHTTPError(http.StatusUnauthorized,"Reset token not valid or have been expired")
+		}	
+
+		c.Set("email",email)
+		return next(c)
+
 	}
 }
