@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/CelticAlreadyUse/Article-accountservices/internal/helper"
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/go-sql-driver/mysql"
@@ -52,7 +53,7 @@ func (r *accountRepository) Store(ctx context.Context, data model.Account) (*mod
 	return newAccount, nil
 }
 func (r *accountRepository) FindByEmail(ctx context.Context, email string) *model.Login {
-	row := sq.Select("id", "email", "password").
+	row := sq.Select("id", "email", "password","username","role").
 		From("accounts").
 		Where(sq.Eq{"email": email}).
 		RunWith(r.db).
@@ -62,6 +63,8 @@ func (r *accountRepository) FindByEmail(ctx context.Context, email string) *mode
 		&data.ID,
 		&data.Email,
 		&data.Password,
+		&data.Username,
+		&data.Role,
 	)
 	if err != nil {
 		return nil
@@ -149,6 +152,14 @@ func (r *accountRepository) FindByUserName(ctx context.Context, search model.Sea
 func(r *accountRepository)SetVerify(ctx context.Context,email string)error{
 	_,err := sq.Update("accounts").Set("verify",true).Where(sq.Eq{"email":email}).RunWith(r.db).ExecContext(ctx)
 	if err !=nil{
+		return err
+	}
+	return nil
+}
+func (r *accountRepository) UpdatePassword(ctx context.Context, data model.ResetPasswordReq) error {
+	hashedPassword, err := helper.Hashpassword(data.NewPass)
+	_, err = sq.Update("accounts").Set("password", hashedPassword).Where(sq.Eq{"email": data.Email}).RunWith(r.db).ExecContext(ctx)
+	if err != nil {
 		return err
 	}
 	return nil

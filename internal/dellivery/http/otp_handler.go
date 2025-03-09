@@ -7,8 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
-
 func (handler *AccountHandler) requestOTP(e echo.Context) error {
 	var body model.OTPRequestGenerateAndSend
 	err := e.Bind(&body)
@@ -50,22 +48,37 @@ func (handler *AccountHandler) validateOTP(e echo.Context) error {
 func (handler *AccountHandler) sendOTPPass(e echo.Context) error {
 	var data model.OTPRequestGenerateAndSend
 	err := e.Bind(&data)
-	if err !=nil{
+	if err != nil {
 		return echo.ErrInternalServerError
 	}
 	err = handler.otpUsecase.SendOTPPass(data)
-	if err !=nil{
+	if err != nil {
 		return echo.ErrBadRequest
 	}
-	return e.JSON(http.StatusAccepted,"Sucessfully Send Email")
+	return e.JSON(http.StatusAccepted, "Sucessfully Send Email")
 }
 func (handler *AccountHandler) verifyOTPPass(e echo.Context) error {
-	return e.JSON(http.StatusAccepted,Response{
-		Data: "",
+	var data model.OTPRequestValidate
+	err := e.Bind(&data)
+	token, err := handler.otpUsecase.ValidateOTPGenerateToken(&data)
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+	return e.JSON(http.StatusAccepted, Response{
+		AccesToken: token,
 	})
 }
 func (handler *AccountHandler) resetPassword(e echo.Context) error {
-	return e.JSON(http.StatusAccepted,Response{
-		Data: "",
+	var data model.ResetPasswordReq
+	err := e.Bind(&data)
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+	err = handler.otpUsecase.ChangePassword(e.Request().Context(), data)
+	if err != nil {
+		return err
+	}
+	return e.JSON(http.StatusAccepted, Response{
+		Data: "Reset Password Success",
 	})
 }

@@ -27,10 +27,6 @@ func (u *usecaseOTP) GenerateAndSendOTP(data model.OTPRequestGenerateAndSend) er
 	logger := logrus.WithFields(logrus.Fields{
 		"data": data.Email,
 	})
-	account := u.accRepo.FindByEmail(context.Background(), data.Email)
-	if account == nil {
-		return errors.New("ops something wrong,email not found")
-	}
 	OTP := helper.GenerateOTP()
 	err := u.otpRepository.StoreOTP(data.Email, OTP, 2*time.Minute)
 	if err != nil {
@@ -53,7 +49,7 @@ func (u *usecaseOTP) ValidateOTP(data *model.OTPRequestValidate) (bool, error) {
 
 	return u.otpRepository.ValidateOTP(*data)
 }
-func (u *usecaseOTP)SendOTPPass(data model.OTPRequestGenerateAndSend) error{
+func (u *usecaseOTP) SendOTPPass(data model.OTPRequestGenerateAndSend) error {
 	logger := logrus.WithFields(logrus.Fields{
 		"data": data.Email,
 	})
@@ -62,36 +58,36 @@ func (u *usecaseOTP)SendOTPPass(data model.OTPRequestGenerateAndSend) error{
 		return errors.New("ops something wrong,email not found")
 	}
 	OTP := helper.GenerateOTP()
-	err := u.otpRepository.StoredOTPPass(data.Email, OTP, 2*time.Minute)
+	err := u.otpRepository.StoredOTPPass(data.Email, OTP, 10*time.Minute)
 	if err != nil {
 		return err
 	}
 	err = helper.SendEmail(data.Email,
 		"verification code",
-		fmt.Sprintf("this is your code,Dont share it to anyone else : %s", OTP))
+		fmt.Sprintf("this is your password code,Dont share it to anyone else : %s", OTP))
 	if err != nil {
 		return err
 	}
 	logger.Infof("OTP %s sent to email: %s\n", OTP, data.Email)
 	return nil
 }
-func (u *usecaseOTP)ValidateOTPGenerateToken(data *model.OTPRequestValidate) (string, error){
+func (u *usecaseOTP) ValidateOTPGenerateToken(data *model.OTPRequestValidate) (string, error) {
 	logrus.WithFields(logrus.Fields{
 		"data": data,
 	})
-	ok,err := u.otpRepository.ValidateOTPPass(*data)
-	if err !=nil{
-		return "",err
+	ok, err := u.otpRepository.ValidateOTPPass(*data)
+	if err != nil {
+		return "", err
 	}
-	if !ok{
-		return "",errors.New("invalid otp")
+	if !ok {
+		return "", errors.New("invalid otp")
 	}
-	token,err :=u.otpRepository.GenerateTokenPass(data.Email)
-	if err !=nil{
-		return "",err
+	token, err := u.otpRepository.GenerateTokenPass(data.Email)
+	if err != nil {
+		return "", err
 	}
-	return token,nil
+	return token, nil
 }
-func (u *usecaseOTP)ChangePassword(ctx context.Context,newPass string)error{
-	panic("implement me")
+func (u *usecaseOTP) ChangePassword(ctx context.Context, data model.ResetPasswordReq) error {
+	return u.accRepo.UpdatePassword(ctx, data)
 }

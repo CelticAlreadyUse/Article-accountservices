@@ -44,13 +44,20 @@ func (handler *AccountHandler) login(e echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	token, err := handler.accountUsecase.Login(e.Request().Context(), *body)
+	login, err := handler.accountUsecase.Login(e.Request().Context(), *body)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
-
+	var User = model.Login{
+		ID: login.ID,
+		Email: login.Email,
+		Username: login.Username,
+		Role: login.Role,
+	}
 	response := Response{
-		AccesToken: token,
+		AccesToken: login.Token,
+		Message: "login sucessfully",
+		Data: User,
 	}
 	return e.JSON(http.StatusAccepted, response)
 

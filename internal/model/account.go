@@ -7,9 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 )
-
 type ContextAuthKey string
-
 const BearerAuthKey ContextAuthKey = "BearerAuth"
 
 type AccountRepository interface {
@@ -20,10 +18,11 @@ type AccountRepository interface {
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
 	FindByUserName(ctx context.Context, search SearchParam) ([]*SearchModelResponse, error)
 	SetVerify(ctx context.Context, email string) error
+	UpdatePassword(ctx context.Context,req ResetPasswordReq)(error)
 }
 type AccountUsecase interface {
 	Create(ctx context.Context, data Register) (token string, err error)
-	Login(ctx context.Context, data Login) (token string, err error)
+	Login(ctx context.Context, data Login) (login *Login, err error)
 	FindByID(ctx context.Context, data Account, id int64) (*Account, error)
 	Update(ctx context.Context, data Account, id int64) (*Account, error)
 	FindByIDs(ctx context.Context, ids []int64) ([]*Account, error)
@@ -89,7 +88,10 @@ type ConfigJWT struct {
 type Login struct {
 	ID       int64  `json:"id"`
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
+	Username string `json:"username"`
+	Role Role `json:"role"`
+	Token string `json:"access_token"`
 }
 type VerifyEmail struct {
 	ID        int64     `json:"-"`
@@ -101,4 +103,11 @@ type VerifyEmail struct {
 
 type VerifyEmailRequest struct {
 	Email string `json:"email" validate:"required,email"`
+}
+
+type Cookie struct{
+	Name string
+	Value string
+	Expired string
+
 }

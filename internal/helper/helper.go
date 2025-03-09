@@ -73,16 +73,12 @@ func GenerateOTP()string{
 }
 func SendEmail(to, subject, body string)error{
 	mail := gomail.NewMessage()
-	mail.SetHeader("From", "wahyusantosokanisius@gmial.com") // Ganti dengan email Anda
+	mail.SetHeader("From", config.SMTPEmail())
 	mail.SetHeader("To", to)
 	mail.SetHeader("Subject", subject)
 	mail.SetBody("text/plain", body)
-
-	// Konfigurasi SMTP
 	port, _ := strconv.Atoi(config.SMTPPort()) 
 	dialer := gomail.NewDialer(config.SMTPHost(), port, config.SMTPEmail(), config.SMTPPasswrod())
-
-	// Kirim email
 	if err := dialer.DialAndSend(mail); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}

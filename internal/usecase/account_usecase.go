@@ -68,28 +68,35 @@ func (u *accountUsecase) FindByID(ctx context.Context, data model.Account, id in
 func (*accountUsecase) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
 	return nil, errors.New("err")
 }
-func (u *accountUsecase) Login(ctx context.Context, data model.Login) (string, error) {
+func (u *accountUsecase) Login(ctx context.Context, data model.Login) (*model.Login, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"data": data,
 	})
 	user := u.accountRepository.FindByEmail(ctx, data.Email)
 	if user == nil {
 		err := errors.New("email not found")
-		return " ", err
+		return nil, err
 	}
 	if !helper.CheckPasswword(data.Password, user.Password) {
 		logger.Errorf("miss match password for  %d", user.ID)
-		return "", errors.New("miss match password")
+		return nil, errors.New("miss match password")
 	}
 	token, err := helper.GenerateToken(user.ID)
 	if err != nil {
 		logger.Error(err)
 	}
+	Login := model.Login{
+		ID: user.ID,
+		Email: user.Email,
+		Username: user.Username,
+		Role: user.Role,
+		Token: token,
+	}
 	claims, _ := helper.ValidateToken(token, model.ConfigJWT{SigningKey: config.JWTSigningKey(), ExpTime: config.JWTExp().String()})
 	logger.Infof("Token akan expired pada: %v\n", claims.ExpiresAt.Time)
 	logger.Infof("Waktu sekarang: %v\n", time.Now())
 	logger.Infof("Sisa waktu: %v\n", claims.ExpiresAt.Time.Sub(time.Now()))
-	return token, nil
+	return &Login, nil
 }
 func (u *accountUsecase) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
 	logger := logrus.WithFields(logrus.Fields{

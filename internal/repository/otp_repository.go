@@ -1,19 +1,15 @@
 package repository
-
 import (
 	"context"
 	"time"
-
 	"github.com/CelticAlreadyUse/Article-accountservices/internal/model"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
-
 type otpRepository struct {
 	redisClient *redis.Client
 	ctx         context.Context
 }
-
 func NewOTPRepository(redisClient *redis.Client, ctx context.Context) model.OTPRepository {
 	return &otpRepository{
 		redisClient: redisClient,
@@ -52,8 +48,4 @@ func (r *otpRepository) ValidateOTPPass(validate model.OTPRequestValidate) (bool
 		return false, err
 	}
 	return storedOTP == validate.OTPCode, nil
-}
-
-func (r *otpRepository)UpdatePassword(ctx context.Context,newPass string)(error){
-	panic("implement me!")
 }
