@@ -108,8 +108,11 @@ Response
 
     Clone the repository
 
-git clone https://github.com/your-username/article-account-service.git
+git clone
+```
+https://github.com/CelticAlreadyUse/Article-accountservices.git
 cd article-account-service
+```
 
     Install dependencies
 
