@@ -143,5 +143,3 @@ Feel free to fork this repo and submit PRs. Suggestions, issues, and feedback ar
 This project is licensed under MIT License.
 
 ---
-
-Let me know if you want a version that includes Docker setup, OpenAPI (Swagger), or Postman Collection too!
