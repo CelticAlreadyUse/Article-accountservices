@@ -27,24 +27,25 @@ Login a registered user.
   "email": "user@example.com",
   "password": "yourPassword"
 }
+```
 📝 POST /v1/account/register
 
 Register a new user account.
 
 Request Body
-
+```json
 {
   "username": "newuser",
   "email": "newuser@example.com",
   "password": "securePassword"
 }
-
+```
 Response
-
+```json
 {
   "message": "Registration successful. Please verify your email."
 }
-
+```
 🔍 GET /v1/account/id
 
 Search for an account using filters like id, username, or email.
@@ -63,46 +64,46 @@ GET /v1/account/id?id=123
 GET /v1/account/id?username=johndoe
 
 Response
-
+```json
 {
   "id": "123",
   "username": "johndoe",
   "email": "johndoe@example.com"
 }
-
+```
 ✅ POST /v1/account/verify
 
 Verify a user's email with the OTP code sent to them.
 
 Request Body
-
+```json
 {
   "email": "user@example.com",
   "otp": "123456"
 }
-
+```
 Response
-
+```json
 {
   "message": "Email verified successfully"
 }
-
+```
 ✉️ POST /v1/account/send-otp
 
 Send an OTP to the provided email address for verification.
 
 Request Body
-
+```json
 {
   "email": "user@example.com"
 }
-
+```
 Response
-
+```json
 {
   "message": "OTP sent to email"
 }
-
+```
 ⚙️ Getting Started
 
     Clone the repository
