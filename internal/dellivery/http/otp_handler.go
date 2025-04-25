@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (handler *AccountHandler) requestOTP(e echo.Context) error {
+func (handler *AccountHandler) requestEmailOTP(e echo.Context) error {
 	var body model.OTPRequestGenerateAndSend
 	err := e.Bind(&body)
 	if err != nil {
@@ -22,7 +22,7 @@ func (handler *AccountHandler) requestOTP(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, "Sucessfully sent OTP")
 }
-func (handler *AccountHandler) validateOTP(e echo.Context) error {
+func (handler *AccountHandler) confirmEmailOTP(e echo.Context) error {
 	var body model.OTPRequestValidate
 	err := e.Bind(&body)
 	if err != nil {

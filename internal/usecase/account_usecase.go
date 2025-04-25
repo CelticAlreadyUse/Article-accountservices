@@ -30,12 +30,12 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 	}
 	Email := u.accountRepository.FindByEmail(ctx, data.Email)
 	if Email != nil {
-		return "", errors.New("account was already exist")
+		return "", errors.New("email was already used")
 	}
 	newAccount, err := u.accountRepository.Store(ctx, model.Account{
 		Username: data.Username,
 		Email:    data.Email,
-		Password: passwordHashed,
+		HashPassword: passwordHashed,
 	})
 	if err != nil {
 		logger.Error(err)
@@ -48,10 +48,9 @@ func (u *accountUsecase) Create(ctx context.Context, data model.Register) (strin
 	}
 	return accesToken, nil
 }
-func (u *accountUsecase) FindByID(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
+func (u *accountUsecase) FindByID(ctx context.Context, id string) (*model.Account, error) {
 	logrus.WithFields(logrus.Fields{
 		"id":   id,
-		"data": data,
 	})
 
 	account, err := u.accountRepository.FindByID(ctx, id)
@@ -65,7 +64,7 @@ func (u *accountUsecase) FindByID(ctx context.Context, data model.Account, id in
 	return account, err
 }
 
-func (*accountUsecase) FindByIDs(ctx context.Context, ids []int64) ([]*model.Account, error) {
+func (*accountUsecase) FindByIDs(ctx context.Context, ids []string) ([]*model.Account, error) {
 	return nil, errors.New("err")
 }
 func (u *accountUsecase) Login(ctx context.Context, data model.Login) (*model.Login, error) {
@@ -74,6 +73,7 @@ func (u *accountUsecase) Login(ctx context.Context, data model.Login) (*model.Lo
 	})
 	user := u.accountRepository.FindByEmail(ctx, data.Email)
 	if user == nil {
+		logger.Error("Email not found")
 		err := errors.New("email not found")
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (u *accountUsecase) Login(ctx context.Context, data model.Login) (*model.Lo
 	logger.Infof("Sisa waktu: %v\n", claims.ExpiresAt.Time.Sub(time.Now()))
 	return &Login, nil
 }
-func (u *accountUsecase) Update(ctx context.Context, data model.Account, id int64) (*model.Account, error) {
+func (u *accountUsecase) Update(ctx context.Context, data model.Account, id string) (*model.Account, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"email": data.Email,
 		"id":    id,

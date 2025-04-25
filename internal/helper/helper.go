@@ -21,7 +21,7 @@ func CheckPasswword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
-func GenerateToken(userID int64) (strToken string, err error) {
+func GenerateToken(userID string) (strToken string, err error) {
 	duration, err := time.ParseDuration(config.JWTExp().String())
 	if err != nil {
 		return "", err
